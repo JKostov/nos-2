@@ -1,0 +1,118 @@
+default_config:
+
+mqtt:
+  broker: mqtt-broker
+
+sensor:
+  - platform: mqtt
+    name: "Temperature"
+    state_topic: "plant/sensors"
+    unit_of_measurement: "°C"
+    value_template: "{{ value_json.temperature }}"
+  - platform: mqtt
+    name: "Humidity"
+    state_topic: "plant/sensors"
+    unit_of_measurement: "%"
+    value_template: "{{ value_json.humidity }}"
+  - platform: time_date
+    display_options:
+      - "time"
+
+automation:
+  - alias: Turn off plant light
+    initial_state: "on"
+    trigger:
+      - platform: time
+        at: '07:00'
+    action:
+      service: script.lights_off_mqtt
+  - alias: Turn off plant light
+    initial_state: "on"
+    trigger:
+      - platform: time
+        at: '16:59'
+    action:
+      service: script.lights_on_mqtt
+
+  - alias: Turn on plant room heater
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temperature
+        below: 19
+    action:
+      service: script.heater_on_mqtt
+  - alias: Turn off plant room heater
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temperature
+        above: 20
+    action:
+      service: script.heater_off_mqtt
+
+  - alias: Turn on plant watering
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.humidity
+        below: 66
+    action:
+      service: script.water_on_mqtt
+  - alias: Turn off plant watering
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.humidity
+        above: 70
+    action:
+      service: script.water_off_mqtt
+
+script:
+  heater_on_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "heater": 1 }'
+          topic: "plant/actuators"
+          retain: true
+
+  heater_off_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "heater": 0 }'
+          topic: "plant/actuators"
+          retain: true
+
+  lights_on_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "light": 1 }'
+          topic: "plant/actuators"
+          retain: true
+
+  lights_off_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "light": 0 }'
+          topic: "plant/actuators"
+          retain: true
+
+  water_on_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "water": 1 }'
+          topic: "plant/actuators"
+          retain: true
+
+  water_off_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "water": 0 }'
+          topic: "plant/actuators"
+          retain: true
