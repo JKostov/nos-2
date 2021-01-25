@@ -106,4 +106,77 @@ The Home Assistant is integrated with the MQTT broker, it's reading the values f
 If some value that is measured is below or above the referent point, the home assistant is sending a MQTT message with the instruction for the plant device application. 
 The plant device application then reads the message from the MQTT broker and sends a signal to a actuator that will turn on or of some device.
 
+#### Plant application
+
+Plant device application code is located in the `plant` directory.
+In the Makefile you can specify the drivers, packages and configuration for the application.
+The application is building for `native` device:
+```
+BOARD ?= native
+```
+When native device is used, the output `elf` can be run on linux, and it will run as a linux process.
+
+The example is using `paho-mqtt` and `jsmn` external packages. Paho-mqtt is used for mqtt broker connection, and jsmn is used for parsing json.
+
+To run the application you have to assign it a network interface. In the `dist/tools/tapsetup` folder there is a tool for creating a TAP virtual interface that can be used.
+
+#### Home Assistant
+
+In the `home-assistant/config` folder there is configuration.yaml file that is used for initial configuration of the home assistant.
+The home assistant is integrated with mqtt-broker, and there are 2 sensors configured to receive values from the mqtt broker on the `plant/sensors` topic.
+```yaml
+mqtt:
+  broker: mqtt-broker
+
+sensor:
+  - platform: mqtt
+    name: "Temperature"
+    state_topic: "plant/sensors"
+    unit_of_measurement: "°C"
+    value_template: "{{ value_json.temperature }}"
+  - platform: mqtt
+    name: "Humidity"
+    state_topic: "plant/sensors"
+    unit_of_measurement: "%"
+    value_template: "{{ value_json.humidity }}"
+  - platform: time_date
+    display_options:
+      - "time"
+```
+
+In the `automation` section are defined the events that are fired after some condition is met. If the temperature is below 19 degrees the script heater_on_mqtt is called.
+```yaml
+automation:
+  - alias: Turn on plant room heater
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temperature
+        below: 19
+    action:
+      service: script.heater_on_mqtt
+  - alias: Turn off plant room heater
+    initial_state: "on"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temperature
+        above: 20
+    action:
+      service: script.heater_off_mqtt
+```
+
+The scripts are defined in the `scripts` section:
+```yaml
+script:
+  heater_on_mqtt:
+    sequence:
+      - service: mqtt.publish
+        data:
+          payload: '{ "heater": 1 }'
+          topic: "plant/actuators"
+          retain: true
+```
+
+All of these things can be configured from the web gui interface that is exposed on the 8123 port by default.
+
 > [References](https://riot-os.org/docs/riot-ieeeiotjournal-2018.pdf)
