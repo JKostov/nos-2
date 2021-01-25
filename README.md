@@ -67,10 +67,6 @@ RIOT provides a generic API for accessing sensor and actuator devices, called th
 
 ![Programming API](docs/RIOT-api.png)
 
-> [Source](https://riot-os.org/docs/riot-ieeeiotjournal-2018.pdf)
-
-
-
 ## Build
 Best practice is to develop and maintain high-level application code in a separate repository which typically pulls in the particular RIOT release the application is built upon.
 
@@ -101,9 +97,13 @@ The example consists of:
 - MQTT broker
 - Home Assistant
 
+![Application](docs/example-application.png)
+
 Home assistant is open source framework meant for running on a IoT gateway. It is used for smart device management. It exposes a rich interface for automation. 
 
 The plant device application is reading values from simulated sensors and it's publishing the values to a MQTT broker.
 The Home Assistant is integrated with the MQTT broker, it's reading the values from the broker and has a dashboard with automation capabilities.
 If some value that is measured is below or above the referent point, the home assistant is sending a MQTT message with the instruction for the plant device application. 
 The plant device application then reads the message from the MQTT broker and sends a signal to a actuator that will turn on or of some device.
+
+> [References](https://riot-os.org/docs/riot-ieeeiotjournal-2018.pdf)
