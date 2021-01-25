@@ -34,7 +34,7 @@ Some of the [features](http://riot-os.org/#features) are:
 Comparison with other low-end IoT operating systems:
 
 | OS | Min RAM | Min ROM | C Support | C++ Support | Multi-Threading | MCU w/o MMU | Modularity | Real-Time |
----------
+| - | - | - | - | - | - | - | - | - |
 | Contiki | < 2kB | < 30kB | ~ |  | ~ | X | ~ | ~ |
 | Tiny OS | < 1kB | < 4KB |  |  | ~ |  |  |  |
 | Linux | ~ 1MB | ~ 1MB | X | X | X |  | ~ | ~ |
