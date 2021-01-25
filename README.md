@@ -101,6 +101,8 @@ The example consists of:
 - MQTT broker
 - Home Assistant
 
+Home assistant is open source framework meant for running on a IoT gateway. It is used for smart device management. It exposes a rich interface for automation. 
+
 The plant device application is reading values from simulated sensors and it's publishing the values to a MQTT broker.
 The Home Assistant is integrated with the MQTT broker, it's reading the values from the broker and has a dashboard with automation capabilities.
 If some value that is measured is below or above the referent point, the home assistant is sending a MQTT message with the instruction for the plant device application. 
